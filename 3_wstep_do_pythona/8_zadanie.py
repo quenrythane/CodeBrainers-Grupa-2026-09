@@ -1,3 +1,3 @@
-imie = "Czarek"
+imie = "Bartek"
 
 print(imie)
