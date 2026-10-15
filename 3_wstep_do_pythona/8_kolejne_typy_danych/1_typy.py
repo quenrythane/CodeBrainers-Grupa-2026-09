@@ -1,3 +1,6 @@
+string = "ala ma kota"
+integer = 20
+float_number = 20.0
 
 true = True
 false = False

@@ -16,10 +16,13 @@ słownik = {
     "gracz_3": 3_000_000,
 }
 
-krotki = ("Artur", "Bartek", "Czarek")
+krotka = ("Artur", "Bartek", "Czarek")
 
-zbiory = {"Artur", "Bartek", "Czarek"}
+zbiór = {"Artur", "Bartek", "Czarek"}
 
 
 print(type(lista))
+print(type(słownik))
+print(type(krotka))
+print(type(zbiór))
 
