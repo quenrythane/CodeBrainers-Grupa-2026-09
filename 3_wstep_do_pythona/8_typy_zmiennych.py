@@ -18,4 +18,3 @@ print(type(wzrost))
 print()
 
 
-
