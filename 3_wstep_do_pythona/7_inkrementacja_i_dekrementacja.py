@@ -10,3 +10,6 @@ print(wynik)
 wynik *= 2  # cokolwiek
 print(wynik)
 
+wynik /= 2
+print(wynik)
+
