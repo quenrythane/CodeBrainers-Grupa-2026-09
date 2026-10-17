@@ -17,8 +17,6 @@ if imię_męskie and wiek_18+:
 
 
 if imie[-1] != "a" and wiek >= 18:  #
-
-    
     print("Możesz iść na pobór do wojska - werjsa 1")
 # if True and True:  #
 #     print("Możesz iść na pobór do wojska")
@@ -35,7 +33,7 @@ elif not czy_mężczyzna and czy_pełnoletni:
     print("kobieta dorosła")
 
 # 4. jeżeli wiek jest < 18 to wypisz "niepełnoletni"
-elif not czy_pełnoletni:
+elif not czy_pełnolteni:
     print("niepełnoletni")
 
 # zabezpiecznie na nieobsłużone warunki
