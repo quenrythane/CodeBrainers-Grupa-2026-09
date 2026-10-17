@@ -1,0 +1,7 @@
+
+"""
+and  - iloczyn logidzny
+or  - suma logiczna
+"""
+print(True or (False and True))
+# print(True or (False and True))
