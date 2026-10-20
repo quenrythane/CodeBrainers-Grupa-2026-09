@@ -1,0 +1,7 @@
+login, hasło
+login1, password1
+admin, admin
+admin, dupa123
+admin, tajneHasło
+Hello World!
+Hello World!
