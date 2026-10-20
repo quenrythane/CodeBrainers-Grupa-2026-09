@@ -1,4 +1,6 @@
 
+pi = 3.1414
+
 def dodawanie(a, b):
     return a + b
 

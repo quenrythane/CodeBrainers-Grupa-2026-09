@@ -1,7 +1,6 @@
+# mój_kalkulator_rodzic.py
 
-pi = 3.1414
-
-def dodawanie(a, b):
+def dodawanie_2(a, b):
     return a + b
 
 def odejmowanie(a, b):
