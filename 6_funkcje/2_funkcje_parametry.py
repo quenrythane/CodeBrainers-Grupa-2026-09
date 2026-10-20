@@ -7,7 +7,7 @@ xd = dodawanie(4, 5)
 print(xd)
 
 
-def dzielenie(liczba_1: int, liczba_2: int) -> float:
+def dzielenie(liczba_1: int, liczba_2: int = 2) -> float:
     """
     Jestem komentarzem który ma podpowiedzieć jak funkcja działa.\n
     Dziele liczbą 1 przez liczbe 2 i zwracam wynik float\n
@@ -18,4 +18,5 @@ def dzielenie(liczba_1: int, liczba_2: int) -> float:
 
 
 print(dzielenie("5", "10"))
+print(dzielenie(10))
 
