@@ -15,6 +15,7 @@ while True:
     except Exception:
         print(f"Niespodziewany błąd. Spróbuj raz jeszcze za chwilę")
 
+
 while True:
     try:
         input_2 = input("Podaj drugą liczbę: ")
