@@ -1,0 +1,13 @@
+workspace:
+  id: ""
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/Employee-Manager-1.6.0-stara: 48411685-a320b2c8-d921-4f7e-8aa9-4f4d07b9caa8
+  environments:
+    ../postman/environments/dev-1.environment.yaml: 48411685-0568c417-a403-4962-b06f-88d2bd12c5db
+    ../postman/environments/dev-2.environment.yaml: 48411685-75113f87-a91c-49bf-8b2d-7d51bd6b11bf
+  globals:
+    ../postman/globals/workspace.globals.yaml: 2c04fabe-d0f1-429a-824b-6d0d8591501b

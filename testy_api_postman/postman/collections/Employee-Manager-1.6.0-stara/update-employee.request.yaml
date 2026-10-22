@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{base_url}}/employees/{{emp_id}}"
+method: PUT
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\": \"{{emp_name}}\",\r
+
+    \  \"salary\": {{emp_salary}},\r
+
+    \  \"age\": 18,\r
+
+    \  \"position\": \"Junior QA\",\r
+
+    \  \"on_leave\": false\r
+
+    }"
+auth:
+  type: inherit
+  credentials:
+    id: 4ef96258-c18c-43d1-a15a-1580b27852d8
+order: 4000

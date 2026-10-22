@@ -1,0 +1,16 @@
+$kind: collection
+description: Testy API aplikacji Employee Manager w wersji 1.6.0.
+variables:
+  moja-zmienna: ""
+  access_token: ""
+  emp_id: ""
+  emp_name: ""
+  emp_salary: ""
+  username: ""
+  password: ""
+auth:
+  - id: 4ef96258-c18c-43d1-a15a-1580b27852d8
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: ""

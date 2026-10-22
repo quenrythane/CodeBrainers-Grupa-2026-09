@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{base_url}}/employees"
+method: GET
+headers:
+  accept: "*/*"
+auth:
+  type: inherit
+  credentials:
+    id: 4ef96258-c18c-43d1-a15a-1580b27852d8
+order: 1000

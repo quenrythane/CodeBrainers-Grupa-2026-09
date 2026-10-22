@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{base_url}}/employees/1"
+method: PUT
+headers:
+  accept: "*/*"
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Czarek",
+      "salary": 1,
+      "age": 18,
+      "position": "Junior QA",
+      "on_leave": false
+    }
+auth:
+  type: inherit
+  credentials:
+    id: 4ef96258-c18c-43d1-a15a-1580b27852d8
+order: 5000
