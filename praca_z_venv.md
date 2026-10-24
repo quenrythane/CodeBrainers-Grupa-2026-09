@@ -1,9 +1,9 @@
 ## Windows
 
 Tworzenie venv: python -m venv .venv
-Aktywacja venv: .\.venv\Scripts\activate.bat
+Aktywacja venv (Terminal cmd): .\.venv\Scripts\activate.bat
 Aktywacja venv (PowerShell):  .\.venv\Scripts\Activate.ps1
-deaktywacja venv: deactivate
+Deaktywacja venv: deactivate
 
 Instalacja biblioteki: pip install <nazwa-biblioteki>
 Instalacja biblioteki: pip install pytest
