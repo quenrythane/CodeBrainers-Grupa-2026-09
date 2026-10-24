@@ -23,3 +23,12 @@ Dodaj asercje (assert) weryfikujące, że:
 3. Uruchom test
 
 '''
+import pytest
+
+
+@pytest.mark.zadanie
+def test_weryfikacja_uzytkownika_premium(uzytkownik_premium):
+    assert uzytkownik_premium["is_premium"] == True
+    assert uzytkownik_premium["punkty"] >= 100
+    assert "@" in uzytkownik_premium["email"]
+
