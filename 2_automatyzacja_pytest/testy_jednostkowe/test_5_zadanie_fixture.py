@@ -27,7 +27,7 @@ import pytest
 
 
 @pytest.mark.zadanie
-def test_weryfikacja_uzytkownika_premium(uzytkownik_premium):
+def test_weryfikacja_uzytkownika_premium(uzytkownik_premium, logger):
     assert uzytkownik_premium["is_premium"] == True
     assert uzytkownik_premium["punkty"] >= 100
     assert "@" in uzytkownik_premium["email"]

@@ -1,4 +1,14 @@
 import pytest
+import logging
+
+
+@pytest.fixture(autouse=True)
+def logger(request):
+    log = logging.getLogger("tests")
+    log.info("START: %s", request.node.nodeid)
+    yield log
+    log.info("KONIEC: %s", request.node.nodeid)
+
 
 @pytest.fixture()
 def przygotowanie():
@@ -11,7 +21,7 @@ def przygotowanie():
 
 
 # def przygotowanie_autouse(scope="function"):
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session", autouse=False)
 def przygotowanie_autouse():
     print("\nTo się dzieje na POCZĄTKU sesji testowej")
     yield
