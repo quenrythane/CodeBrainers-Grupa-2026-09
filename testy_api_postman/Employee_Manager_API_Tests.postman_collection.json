@@ -1,0 +1,1157 @@
+{
+    "info": {
+        "_postman_id": "dd4924d8-6166-4214-a2ca-e2e33746c612",
+        "name": "Dummy Employee API - Senior QA Test Suite",
+        "description": "Profesjonalny zestaw testów API dla aplikacji Dummy Employee API (FastAPI @ http://127.0.0.1:8000/docs).\nZawiera testy Smoke, autoryzacji, pełny cykl E2E CRUD z dynamicznym stanem, testy wartości brzegowych (BVA - 422), testy bezpieczeństwa (401) oraz procedury czyszczące/teardown.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://127.0.0.1:8000",
+            "type": "string"
+        },
+        {
+            "key": "username",
+            "value": "admin",
+            "type": "string"
+        },
+        {
+            "key": "password",
+            "value": "admin",
+            "type": "string"
+        },
+        {
+            "key": "access_token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "created_emp_id",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "temp_emp_name",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{access_token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "item": [
+        {
+            "name": "01 - Smoke & Health",
+            "item": [
+                {
+                    "name": "GET /health - Smoke Health Check",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 200 OK\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Status name is OK\", function () {",
+                                    "    pm.response.to.have.status(\"OK\");",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Response time is acceptable (< 300ms)\", function () {",
+                                    "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Content-Type is application/json\", function () {",
+                                    "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Health status payload returns ok\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.be.an(\"object\");",
+                                    "    pm.expect(jsonData).to.have.property(\"status\");",
+                                    "    pm.expect(jsonData.status).to.eql(\"ok\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/health",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "health"
+                            ]
+                        },
+                        "description": "Weryfikacja dostępności serwisu (Smoke test)."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "02 - Authentication & Session",
+            "item": [
+                {
+                    "name": "POST /api/login - Positive Login & Token Acquisition",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 200 OK\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Response time is acceptable (< 600ms)\", function () {",
+                                    "    pm.expect(pm.response.responseTime).to.be.below(600);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Content-Type is application/json\", function () {",
+                                    "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Token response contract validation\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.be.an(\"object\");",
+                                    "    pm.expect(jsonData).to.have.property(\"access_token\");",
+                                    "    pm.expect(jsonData.access_token).to.be.a(\"string\").and.not.empty;",
+                                    "    pm.expect(jsonData).to.have.property(\"token_type\");",
+                                    "    pm.expect(jsonData.token_type.toLowerCase()).to.eql(\"bearer\");",
+                                    "    pm.expect(jsonData).to.have.property(\"expires_in\");",
+                                    "    pm.expect(jsonData.expires_in).to.be.a(\"number\").and.above(0);",
+                                    "});",
+                                    "",
+                                    "// Ekstrakcja tokena do zmiennych kolekcji",
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.access_token) {",
+                                    "    pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+                                    "    console.log(\"[AUTH] Token pomyślnie zapisany w collectionVariables:\", jsonData.access_token);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "login"
+                            ]
+                        },
+                        "description": "Logowanie poprawnymi poświadczeniami oraz automatyczne ustawienie tokena w kolekcji."
+                    }
+                },
+                {
+                    "name": "POST /api/login - Negative (Invalid Password - 401)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                                    "    pm.response.to.have.status(401);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Response error detail message is correct\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    pm.expect(jsonData.detail).to.eql(\"Invalid username or password\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"niepoprawne_haslo_123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "login"
+                            ]
+                        },
+                        "description": "Negatywna weryfikacja logowania z błędnym hasłem."
+                    }
+                },
+                {
+                    "name": "POST /api/login - Negative (Missing Body Fields - 422)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+                                    "    pm.response.to.have.status(422);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Detail array contains validation errors for missing fields\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    pm.expect(jsonData.detail).to.be.an(\"array\");",
+                                    "    var missingLocs = jsonData.detail.map(function(item) {",
+                                    "        return item.loc[item.loc.length - 1];",
+                                    "    });",
+                                    "    pm.expect(missingLocs).to.include(\"username\");",
+                                    "    pm.expect(missingLocs).to.include(\"password\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "login"
+                            ]
+                        },
+                        "description": "Weryfikacja walidacji FastAPI/Pydantic przy pustym ciele żądania."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "03 - Employees CRUD (Happy Path E2E)",
+            "item": [
+                {
+                    "name": "GET /api/employees - Fetch Current Employee List",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 200 OK\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Response is an array of employees\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.be.an(\"array\");",
+                                    "    if (jsonData.length > 0) {",
+                                    "        var emp = jsonData[0];",
+                                    "        pm.expect(emp).to.have.property(\"id\");",
+                                    "        pm.expect(emp).to.have.property(\"name\");",
+                                    "        pm.expect(emp).to.have.property(\"salary\");",
+                                    "        pm.expect(emp).to.have.property(\"age\");",
+                                    "        pm.expect(emp).to.have.property(\"position\");",
+                                    "        pm.expect(emp).to.have.property(\"on_leave\");",
+                                    "    }",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/employees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees"
+                            ]
+                        },
+                        "description": "Pobranie aktualnej listy pracowników przed operacjami zapisu."
+                    }
+                },
+                {
+                    "name": "POST /api/employees - Create New Employee (Save ID)",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "// Generowanie unikalnych danych testowych",
+                                    "var randomSuffix = Math.floor(Math.random() * 9000 + 1000);",
+                                    "var generatedName = \"Jan Tester \" + randomSuffix;",
+                                    "pm.collectionVariables.set(\"temp_emp_name\", generatedName);",
+                                    "console.log(\"[PRE-REQ] Przygotowano pracownika:\", generatedName);"
+                                ]
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 200 OK\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Response time is acceptable (< 600ms)\", function () {",
+                                    "    pm.expect(pm.response.responseTime).to.be.below(600);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Employee schema and business properties validation\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.be.an(\"object\");",
+                                    "    pm.expect(jsonData).to.have.property(\"id\");",
+                                    "    pm.expect(jsonData.id).to.be.a(\"number\").and.above(0);",
+                                    "    ",
+                                    "    var expectedName = pm.collectionVariables.get(\"temp_emp_name\");",
+                                    "    pm.expect(jsonData.name).to.eql(expectedName);",
+                                    "    pm.expect(jsonData.salary).to.eql(16500);",
+                                    "    pm.expect(jsonData.age).to.eql(28);",
+                                    "    pm.expect(jsonData.position).to.eql(\"Senior QA\");",
+                                    "    pm.expect(jsonData.on_leave).to.eql(false);",
+                                    "    ",
+                                    "    // Zapisanie ID do zmiennej kolekcji",
+                                    "    pm.collectionVariables.set(\"created_emp_id\", jsonData.id);",
+                                    "    console.log(\"[CRUD] Utworzono pracownika ID:\", jsonData.id);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"{{temp_emp_name}}\",\n    \"salary\": 16500,\n    \"age\": 28,\n    \"position\": \"Senior QA\",\n    \"on_leave\": false\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/employees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees"
+                            ]
+                        },
+                        "description": "Utworzenie nowego rekordu pracownika i utrwalenie jego ID w zmiennych kolekcji."
+                    }
+                },
+                {
+                    "name": "PUT /api/employees/{{created_emp_id}} - Update Employee Details",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 200 OK\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Updated employee data matches modified fields\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    var expectedId = Number(pm.collectionVariables.get(\"created_emp_id\"));",
+                                    "    ",
+                                    "    pm.expect(jsonData.id).to.eql(expectedId);",
+                                    "    pm.expect(jsonData.salary).to.eql(19500);",
+                                    "    pm.expect(jsonData.age).to.eql(29);",
+                                    "    pm.expect(jsonData.position).to.eql(\"QA Lead\");",
+                                    "    pm.expect(jsonData.on_leave).to.eql(true);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"{{temp_emp_name}}\",\n    \"salary\": 19500,\n    \"age\": 29,\n    \"position\": \"QA Lead\",\n    \"on_leave\": true\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/employees/{{created_emp_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees",
+                                "{{created_emp_id}}"
+                            ]
+                        },
+                        "description": "Aktualizacja wcześniej utworzonego pracownika o nową stawkę, wiek, stanowisko i flagę urlopu."
+                    }
+                },
+                {
+                    "name": "GET /api/employees - Verify Updated Employee in List",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 200 OK\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Employee list includes updated record with matching attributes\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    var targetId = Number(pm.collectionVariables.get(\"created_emp_id\"));",
+                                    "    ",
+                                    "    var found = jsonData.find(function(item) { return item.id === targetId; });",
+                                    "    pm.expect(found, \"Pracownik o ID \" + targetId + \" powinien znajdować się na liście\").to.not.be.undefined;",
+                                    "    pm.expect(found.salary).to.eql(19500);",
+                                    "    pm.expect(found.age).to.eql(29);",
+                                    "    pm.expect(found.position).to.eql(\"QA Lead\");",
+                                    "    pm.expect(found.on_leave).to.eql(true);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/employees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees"
+                            ]
+                        },
+                        "description": "Pobranie pełnej listy i weryfikacja czy zaktualizowany rekord jest obecny w bazie."
+                    }
+                },
+                {
+                    "name": "DELETE /api/employees/{{created_emp_id}} - Delete Employee Record",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 200 OK\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Deletion response status is 'deleted'\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"status\");",
+                                    "    pm.expect(jsonData.status).to.eql(\"deleted\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/employees/{{created_emp_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees",
+                                "{{created_emp_id}}"
+                            ]
+                        },
+                        "description": "Usunięcie utworzonego w ramach testu pracownika."
+                    }
+                },
+                {
+                    "name": "DELETE /api/employees/{{created_emp_id}} - Verify 404 After Deletion",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 404 Not Found\", function () {",
+                                    "    pm.response.to.have.status(404);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Error detail indicates employee not found\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    pm.expect(jsonData.detail).to.eql(\"Employee not found\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/employees/{{created_emp_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees",
+                                "{{created_emp_id}}"
+                            ]
+                        },
+                        "description": "Próba ponownego usunięcia tego samego ID - weryfikacja kodu 404."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "04 - Boundary & Validation (BVA - 422)",
+            "item": [
+                {
+                    "name": "POST /api/employees - BVA Age Below Min (age=17 -> 422)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+                                    "    pm.response.to.have.status(422);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Validation error specifies age constraint failure (ge 18)\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    var ageErr = jsonData.detail.find(function(item) { return item.loc.includes(\"age\"); });",
+                                    "    pm.expect(ageErr, \"Błąd walidacji pola age powinien wystąpić\").to.not.be.undefined;",
+                                    "    pm.expect(ageErr.msg).to.include(\"18\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Młody Tester\",\n    \"salary\": 5000,\n    \"age\": 17,\n    \"position\": \"Junior QA\",\n    \"on_leave\": false\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/employees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees"
+                            ]
+                        },
+                        "description": "BVA: Wartość wieku poniżej dopuszczalnego minimum (min=18, podano 17)."
+                    }
+                },
+                {
+                    "name": "POST /api/employees - BVA Age Above Max (age=66 -> 422)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+                                    "    pm.response.to.have.status(422);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Validation error specifies age constraint failure (le 65)\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    var ageErr = jsonData.detail.find(function(item) { return item.loc.includes(\"age\"); });",
+                                    "    pm.expect(ageErr, \"Błąd walidacji pola age powinien wystąpić\").to.not.be.undefined;",
+                                    "    pm.expect(ageErr.msg).to.include(\"65\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Senior Emeryt\",\n    \"salary\": 8000,\n    \"age\": 66,\n    \"position\": \"Senior QA\",\n    \"on_leave\": false\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/employees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees"
+                            ]
+                        },
+                        "description": "BVA: Wartość wieku powyżej dopuszczalnego maksimum (max=65, podano 66)."
+                    }
+                },
+                {
+                    "name": "POST /api/employees - BVA Salary Below Min (salary=0 -> 422)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+                                    "    pm.response.to.have.status(422);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Validation error specifies salary constraint failure (ge 1)\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    var salaryErr = jsonData.detail.find(function(item) { return item.loc.includes(\"salary\"); });",
+                                    "    pm.expect(salaryErr, \"Błąd walidacji pola salary powinien wystąpić\").to.not.be.undefined;",
+                                    "    pm.expect(salaryErr.msg).to.include(\"1\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Darmowy Tester\",\n    \"salary\": 0,\n    \"age\": 25,\n    \"position\": \"Junior QA\",\n    \"on_leave\": false\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/employees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees"
+                            ]
+                        },
+                        "description": "BVA: Pensja poniżej minimum (min=1, podano 0)."
+                    }
+                },
+                {
+                    "name": "POST /api/employees - BVA Salary Above Max (salary=200001 -> 422)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+                                    "    pm.response.to.have.status(422);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Validation error specifies salary constraint failure (le 200000)\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    var salaryErr = jsonData.detail.find(function(item) { return item.loc.includes(\"salary\"); });",
+                                    "    pm.expect(salaryErr, \"Błąd walidacji pola salary powinien wystąpić\").to.not.be.undefined;",
+                                    "    pm.expect(salaryErr.msg).to.include(\"200000\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Bogaty Tester\",\n    \"salary\": 200001,\n    \"age\": 35,\n    \"position\": \"QA Lead\",\n    \"on_leave\": false\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/employees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees"
+                            ]
+                        },
+                        "description": "BVA: Pensja powyżej maksimum (max=200000, podano 200001)."
+                    }
+                },
+                {
+                    "name": "POST /api/employees - Invalid Enum Position (position='CEO' -> 422)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+                                    "    pm.response.to.have.status(422);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Validation error details specify invalid enum value\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    var posErr = jsonData.detail.find(function(item) { return item.loc.includes(\"position\"); });",
+                                    "    pm.expect(posErr, \"Błąd walidacji enuma position powinien wystąpić\").to.not.be.undefined;",
+                                    "    pm.expect(posErr.type).to.include(\"enum\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Nieprawidłowa Pozycja\",\n    \"salary\": 10000,\n    \"age\": 30,\n    \"position\": \"CEO\",\n    \"on_leave\": false\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/employees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees"
+                            ]
+                        },
+                        "description": "Weryfikacja PositionEnum (dopuszczalne: Junior QA, Mid QA, Senior QA, QA Lead)."
+                    }
+                },
+                {
+                    "name": "POST /api/employees - Name Regex Violation (special chars -> 422)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+                                    "    pm.response.to.have.status(422);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Validation error detects regex pattern failure\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    var nameErr = jsonData.detail.find(function(item) { return item.loc.includes(\"name\"); });",
+                                    "    pm.expect(nameErr, \"Błąd walidacji wzorca regex name powinien wystąpić\").to.not.be.undefined;",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Jan @@@ Kowalski #1!\",\n    \"salary\": 10000,\n    \"age\": 30,\n    \"position\": \"Mid QA\",\n    \"on_leave\": false\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/employees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees"
+                            ]
+                        },
+                        "description": "Weryfikacja regexu dopuszczalnych znaków w imieniu i nazwisku."
+                    }
+                },
+                {
+                    "name": "PUT /api/employees/999999 - Update Non-existent Employee (404)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 404 Not Found\", function () {",
+                                    "    pm.response.to.have.status(404);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Detail message informs employee not found\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    pm.expect(jsonData.detail).to.eql(\"Employee not found\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Nieistniejący Tester\",\n    \"salary\": 12000,\n    \"age\": 32,\n    \"position\": \"Mid QA\",\n    \"on_leave\": false\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/employees/999999",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees",
+                                "999999"
+                            ]
+                        },
+                        "description": "Próba aktualizacji nieistniejącego rekordu (ID 999999) zwraca 404."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "05 - Security & Access Control (401)",
+            "item": [
+                {
+                    "name": "GET /api/employees - Missing Authorization Header (401)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                                    "    pm.response.to.have.status(401);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Detail message is 'Not authenticated'\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    pm.expect(jsonData.detail).to.eql(\"Not authenticated\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/employees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees"
+                            ]
+                        },
+                        "description": "Próba dostępu do chronionego zasobu bez nagłówka Authorization."
+                    }
+                },
+                {
+                    "name": "GET /api/employees - Invalid / Expired Bearer Token (401)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                                    "    pm.response.to.have.status(401);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Detail message is 'Invalid or expired token'\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"detail\");",
+                                    "    pm.expect(jsonData.detail).to.eql(\"Invalid or expired token\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "sfaszowany_token_jwt_qa_invalid_123",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/employees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees"
+                            ]
+                        },
+                        "description": "Próba dostępu z niepoprawnym/wygasłym tokenem."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "06 - Maintenance & Teardown",
+            "item": [
+                {
+                    "name": "POST /api/employees/reset - Reset Employee Database",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 200 OK\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Database reset confirms with status 'reset'\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"status\");",
+                                    "    pm.expect(jsonData.status).to.eql(\"reset\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/employees/reset",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "employees",
+                                "reset"
+                            ]
+                        },
+                        "description": "Przywrócenie bazy danych pracowników do stanu początkowego po zakończeniu testów."
+                    }
+                },
+                {
+                    "name": "POST /api/logout - Invalidate Session & Logout",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 200 OK\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Logout confirms with status 'logged_out'\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property(\"status\");",
+                                    "    pm.expect(jsonData.status).to.eql(\"logged_out\");",
+                                    "});",
+                                    "",
+                                    "// Wyczyszczenie zmiennej lokalnej",
+                                    "pm.collectionVariables.set(\"access_token\", \"\");",
+                                    "console.log(\"[TEARDOWN] Sesja wylogowana, token usunięty z collectionVariables.\");"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/logout",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "logout"
+                            ]
+                        },
+                        "description": "Wylogowanie tokena i wyczyszczenie sesji."
+                    }
+                }
+            ]
+        }
+    ]
+}
