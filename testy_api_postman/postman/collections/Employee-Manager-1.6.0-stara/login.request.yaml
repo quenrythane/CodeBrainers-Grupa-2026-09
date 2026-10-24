@@ -10,13 +10,17 @@ body:
     \    \"password\": \"{{password}}\"\r
 
     }"
+auth:
+  type: inherit
+  credentials:
+    id: collection-44Bea1cCDc91cC1aBad96A99-bearer
 scripts:
   - type: afterResponse
     code: |+
       // tutaj zapisuejmy token w zmiennej kolekcji access_token
       var jsonData = pm.response.json();
 
-      pm.collectionVariables.set("access_token", jsonData.access_token);
+      pm.vault.set("token", jsonData.access_token);
 
 
 

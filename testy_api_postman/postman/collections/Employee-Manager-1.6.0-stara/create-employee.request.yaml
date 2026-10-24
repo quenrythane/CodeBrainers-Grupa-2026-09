@@ -5,9 +5,9 @@ body:
   type: json
   content: "{\r
 
-    \  \"name\": \"Artur\",\r
+    \  \"name\": \"{{emp_name}}\",\r
 
-    \  \"salary\": 10000,\r
+    \  \"salary\": {{emp_salary}},\r
 
     \  \"age\": 18,\r
 
@@ -19,5 +19,110 @@ body:
 auth:
   type: inherit
   credentials:
-    id: 4ef96258-c18c-43d1-a15a-1580b27852d8
+    id: collection-44Bea1cCDc91cC1aBad96A99-bearer
+scripts:
+  - type: beforeRequest
+    code: |-
+      try {
+          const response = await pm.execution.runRequest("86f8cB6A7eAe46b3FFE0cDb8");
+
+          console.log(response.json());
+      } catch (err) {
+          console.error(err);
+      }
+    language: text/javascript
+    requests:
+      86f8cB6A7eAe46b3FFE0cDb8:
+        workspace: cf8cd86f-4eb7-4c20-b494-95c6b3107dc9
+        collection: 44Bea1cCDc91cC1aBad96A99
+        location:
+          - Employee-Manager-1.6.0-stara
+          - login
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Body matches string - wycinek się zgadza\", function () {\r
+
+      \    // pobieream wartość zmiennej kolekcji emp_name\r
+
+      \    var emp_name = pm.collectionVariables.get('emp_name')\r
+
+      \r
+
+      \    // szykuje string do porównania\r
+
+      \    // f\"\"\r
+
+      \    // ``\r
+
+      \    var responseBody = `{\"name\":\"${emp_name}\",\"salary\":20000,\"age\":18,\"position\":\"Junior QA\",\"on_leave\":false,\"id\":}`\r
+
+      \r
+
+      \    // porównuje odpowiedź z spodziewanym stringiem\r
+
+      \    pm.expect(pm.response.text()).to.include('\"age\":18,');\r
+
+      })\r
+
+      \r
+
+      \r
+
+      pm.test(\"Is name correct\", function () {\r
+
+      \    var jsonData = pm.response.json();\r
+
+      \    var emp_name = pm.collectionVariables.get(\"emp_name\")\r
+
+      \    pm.expect(jsonData.name).to.eql(emp_name);\r
+
+      });\r
+
+      \r
+
+      \r
+
+      // pm.test(\"Body is correct - całość jest zgodna\", function () {\r
+
+      //     var responseBody = '{\"name\":\"Adam\",\"salary\":20000,\"age\":18,\"position\":\"Junior QA\",\"on_leave\":false,\"id\":14}'\r
+
+      //     pm.response.to.have.body(responseBody);\r
+
+      // });\r
+
+      \r
+
+      pm.test(\"Content-Type is present\", function () {\r
+
+      \    pm.response.to.have.header(\"Content-Type\");\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Response time is less than 500ms\", function () {\r
+
+      \    pm.expect(pm.response.responseTime).to.be.below(500);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Status code name has string\", function () {\r
+
+      \    pm.response.to.have.status(\"OK\");\r
+
+      });\r
+
+      \r
+
+      \r\n"
+    language: text/javascript
 order: 3000

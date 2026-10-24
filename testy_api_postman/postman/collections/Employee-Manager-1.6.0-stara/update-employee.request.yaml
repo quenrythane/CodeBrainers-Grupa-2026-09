@@ -19,5 +19,28 @@ body:
 auth:
   type: inherit
   credentials:
-    id: 4ef96258-c18c-43d1-a15a-1580b27852d8
+    id: collection-44Bea1cCDc91cC1aBad96A99-bearer
+scripts:
+  - type: beforeRequest
+    code: "try {\r
+
+      \    const response = await pm.execution.runRequest(\"86f8cB6A7eAe46b3FFE0cDb8\");\r
+
+      \r
+
+      \    console.log(response.json());\r
+
+      } catch (err) {\r
+
+      \    console.error(err);\r
+
+      }"
+    language: text/javascript
+    requests:
+      86f8cB6A7eAe46b3FFE0cDb8:
+        workspace: cf8cd86f-4eb7-4c20-b494-95c6b3107dc9
+        collection: 44Bea1cCDc91cC1aBad96A99
+        location:
+          - Employee-Manager-1.6.0-stara
+          - login
 order: 4000
