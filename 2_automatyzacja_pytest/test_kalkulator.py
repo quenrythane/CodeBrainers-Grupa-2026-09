@@ -1,3 +1,4 @@
+import pytest
 from kalkulator import dodaj
 
 
@@ -6,9 +7,12 @@ from kalkulator import dodaj
 #    Windows Aktywacja venv (PowerShell):  .\.venv\Scripts\Activate.ps1
 #    MacOS/Linux Aktywacja venv: source .venv/bin/activate
 
-# Test uruchamiamy poprzez pytest -v
+# Test uruchamiamy poprzez wpisanie w terminalu z aktywowanym venv:
+# pytest -v
 
 # Test musi zaczynać się od słowa test_
+
+@pytest.mark.dodaj
 def test_dodaj():
     assert dodaj(1, 1) == 2
     assert dodaj(2, 3) == 5
