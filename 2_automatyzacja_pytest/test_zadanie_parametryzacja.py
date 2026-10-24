@@ -16,11 +16,10 @@
 import pytest
 
 def powitanie(imie: str, nazwisko: str):
-    powitanie = f"Witaj, {imie.capitalize()} {nazwisko.capitalize()}"
-    return powitanie
+    return f"Witaj, {imie.capitalize()} {nazwisko.capitalize()}"
 
 
-@pytest.mark.powitanie
+@pytest.mark.powitanie  # pytest -m powitanie
 @pytest.mark.parametrize("imie, nazwisko, spodziewany_rezultat", [
     ("Jan", "kowalski", "Witaj, Jan Kowalski"),
     ("jan", "kowalski", "Witaj, Jan Kowalski"),
