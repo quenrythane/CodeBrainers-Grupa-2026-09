@@ -7,7 +7,9 @@ import requests
 @pytest.mark.api
 @pytest.mark.employees
 @pytest.mark.delete_employee
-def test_delete_employee_success(base_url, auth_headers, created_employee):
+def test_delete_employee_success(
+    base_url, auth_headers, created_employee, delete_success_response, employee_not_found_response
+):
     # Arrange
     emp_id = created_employee["id"]
 
@@ -16,12 +18,12 @@ def test_delete_employee_success(base_url, auth_headers, created_employee):
 
     # Assert
     assert response.status_code == 200, f"Oczekiwano statusu 200, otrzymano {response.status_code}: {response.text}"
-    assert response.json() == {"status": "deleted"}
+    assert response.json() == delete_success_response
 
-    # Weryfikacja: ponowna próba pobrania lub usunięcia powinna zwrócić 404 Not Found
+    # Weryfikacja: ponowna próba usunięcia powinna zwrócić 404 Not Found
     re_delete_response = requests.delete(f"{base_url}/employees/{emp_id}", headers=auth_headers)
     assert re_delete_response.status_code == 404
-    assert re_delete_response.json()["detail"] == "Employee not found"
+    assert re_delete_response.json() == employee_not_found_response
 
     # Weryfikacja GET: brak usuniętego rekordu na liście pracowników
     get_response = requests.get(f"{base_url}/employees", headers=auth_headers)
@@ -33,22 +35,23 @@ def test_delete_employee_success(base_url, auth_headers, created_employee):
 @pytest.mark.api
 @pytest.mark.employees
 @pytest.mark.delete_employee
-def test_delete_employee_not_found(base_url, auth_headers):
-    # Arrange
-    non_existing_id = 999999
-
+def test_delete_employee_not_found(
+    base_url, auth_headers, non_existing_employee_id, employee_not_found_response
+):
     # Act
-    response = requests.delete(f"{base_url}/employees/{non_existing_id}", headers=auth_headers)
+    response = requests.delete(f"{base_url}/employees/{non_existing_employee_id}", headers=auth_headers)
 
     # Assert
     assert response.status_code == 404
-    assert response.json()["detail"] == "Employee not found"
+    assert response.json() == employee_not_found_response
 
 
 @pytest.mark.api
 @pytest.mark.employees
 @pytest.mark.delete_employee
-def test_delete_employee_unauthorized(base_url, created_employee):
+def test_delete_employee_unauthorized(
+    base_url, created_employee, unauthorized_response
+):
     # Arrange
     emp_id = created_employee["id"]
 
@@ -57,15 +60,15 @@ def test_delete_employee_unauthorized(base_url, created_employee):
 
     # Assert
     assert response.status_code == 401
-    assert response.json()["detail"] == "Not authenticated"
+    assert response.json() == unauthorized_response
 
 
 @pytest.mark.api
 @pytest.mark.employees
 @pytest.mark.delete_employee
-def test_delete_employee_invalid_id_type(base_url, auth_headers):
+def test_delete_employee_invalid_id_type(base_url, auth_headers, invalid_employee_id):
     # Act - przekazanie niepoprawnego typu parametru ścieżki (string zamiast int)
-    response = requests.delete(f"{base_url}/employees/niepoprawne_id", headers=auth_headers)
+    response = requests.delete(f"{base_url}/employees/{invalid_employee_id}", headers=auth_headers)
 
     # Assert
     assert response.status_code == 422

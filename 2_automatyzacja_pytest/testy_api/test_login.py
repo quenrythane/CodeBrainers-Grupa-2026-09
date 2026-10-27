@@ -3,9 +3,11 @@ import requests
 
 @pytest.mark.api
 @pytest.mark.api_login
-def test_login(base_url, login_data, correct_login_payload, correct_login_response):
+def test_login(base_url, login_data, correct_login_payload, correct_login_response, logger):
     # Act
+    logger.info("wysyłam zapytanie post login")
     response = requests.post(f"{base_url}/login", json=correct_login_payload)
+    logger.info(f"odpowiedź to {response.text}")
 
     # Assert
     response_body = response.json()
