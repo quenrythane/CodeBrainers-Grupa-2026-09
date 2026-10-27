@@ -6,6 +6,7 @@ workspace:
 cloudResources:
   collections:
     ../postman/collections/Employee-Manager-1.6.0-stara: 48411685-a320b2c8-d921-4f7e-8aa9-4f4d07b9caa8
+    ../postman/collections/Dummy Employee API - Senior QA Test Suite: 71b8768b-bb5d-461c-a703-5060ea78ec3e
   environments:
     ../postman/environments/dev-1.environment.yaml: 48411685-0568c417-a403-4962-b06f-88d2bd12c5db
     ../postman/environments/dev-2.environment.yaml: 48411685-75113f87-a91c-49bf-8b2d-7d51bd6b11bf

@@ -1,0 +1,36 @@
+$kind: http-request
+name: PUT /api/employees/{{created_emp_id}} - Update Employee Details
+description: Aktualizacja wcześniej utworzonego pracownika o nową stawkę, wiek, stanowisko i flagę urlopu.
+url: "{{base_url}}/api/employees/{{created_emp_id}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+        "name": "{{temp_emp_name}}",
+        "salary": 19500,
+        "age": 29,
+        "position": "QA Lead",
+        "on_leave": true
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Updated employee data matches modified fields", function () {
+          var jsonData = pm.response.json();
+          var expectedId = Number(pm.collectionVariables.get("created_emp_id"));
+          
+          pm.expect(jsonData.id).to.eql(expectedId);
+          pm.expect(jsonData.salary).to.eql(19500);
+          pm.expect(jsonData.age).to.eql(29);
+          pm.expect(jsonData.position).to.eql("QA Lead");
+          pm.expect(jsonData.on_leave).to.eql(true);
+      });
+    language: text/javascript
+order: 3000

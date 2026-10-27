@@ -1,0 +1,23 @@
+$kind: http-request
+name: GET /api/employees - Invalid / Expired Bearer Token (401)
+description: Próba dostępu z niepoprawnym/wygasłym tokenem.
+url: "{{base_url}}/api/employees"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{auth_secret_0m4i}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 401 Unauthorized", function () {
+          pm.response.to.have.status(401);
+      });
+
+      pm.test("Detail message is 'Invalid or expired token'", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          pm.expect(jsonData.detail).to.eql("Invalid or expired token");
+      });
+    language: text/javascript
+order: 2000

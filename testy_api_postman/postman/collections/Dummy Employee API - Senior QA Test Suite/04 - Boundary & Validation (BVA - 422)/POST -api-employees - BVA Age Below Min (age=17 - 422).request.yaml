@@ -1,0 +1,33 @@
+$kind: http-request
+name: POST /api/employees - BVA Age Below Min (age=17 -> 422)
+description: "BVA: Wartość wieku poniżej dopuszczalnego minimum (min=18, podano 17)."
+url: "{{base_url}}/api/employees"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+        "name": "Młody Tester",
+        "salary": 5000,
+        "age": 17,
+        "position": "Junior QA",
+        "on_leave": false
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 422 Unprocessable Entity", function () {
+          pm.response.to.have.status(422);
+      });
+
+      pm.test("Validation error specifies age constraint failure (ge 18)", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          var ageErr = jsonData.detail.find(function(item) { return item.loc.includes("age"); });
+          pm.expect(ageErr, "Błąd walidacji pola age powinien wystąpić").to.not.be.undefined;
+          pm.expect(ageErr.msg).to.include("18");
+      });
+    language: text/javascript
+order: 1000

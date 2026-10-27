@@ -1,0 +1,38 @@
+$kind: collection
+description: |-
+  Profesjonalny zestaw testów API dla aplikacji Dummy Employee API (FastAPI @ http://127.0.0.1:8000/docs).
+  Zawiera testy Smoke, autoryzacji, pełny cykl E2E CRUD z dynamicznym stanem, testy wartości brzegowych (BVA - 422), testy bezpieczeństwa (401) oraz procedury czyszczące/teardown.
+variables:
+  - key: base_url
+    value: http://127.0.0.1:8000
+    disabled: false
+    secret: false
+  - key: username
+    value: admin
+    disabled: false
+    secret: false
+  - key: password
+    value: admin
+    disabled: false
+    secret: false
+  - key: access_token
+    value: ""
+    disabled: false
+    secret: false
+  - key: created_emp_id
+    value: ""
+    disabled: false
+    secret: false
+  - key: temp_emp_name
+    value: ""
+    disabled: false
+    secret: false
+  - key: auth_secret_0m4i
+    secret: true
+    disabled: false
+auth:
+  - id: 609918b7-89a0-4bc2-a913-95aace02998b
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{access_token}}"

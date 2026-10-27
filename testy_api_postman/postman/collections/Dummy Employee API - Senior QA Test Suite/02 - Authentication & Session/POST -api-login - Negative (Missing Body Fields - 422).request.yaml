@@ -1,0 +1,31 @@
+$kind: http-request
+name: POST /api/login - Negative (Missing Body Fields - 422)
+description: Weryfikacja walidacji FastAPI/Pydantic przy pustym ciele żądania.
+url: "{{base_url}}/api/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: "{}"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 422 Unprocessable Entity", function () {
+          pm.response.to.have.status(422);
+      });
+
+      pm.test("Detail array contains validation errors for missing fields", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          pm.expect(jsonData.detail).to.be.an("array");
+          var missingLocs = jsonData.detail.map(function(item) {
+              return item.loc[item.loc.length - 1];
+          });
+          pm.expect(missingLocs).to.include("username");
+          pm.expect(missingLocs).to.include("password");
+      });
+    language: text/javascript
+order: 3000

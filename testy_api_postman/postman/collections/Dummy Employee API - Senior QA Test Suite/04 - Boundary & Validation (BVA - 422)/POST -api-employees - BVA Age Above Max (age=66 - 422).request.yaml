@@ -1,0 +1,33 @@
+$kind: http-request
+name: POST /api/employees - BVA Age Above Max (age=66 -> 422)
+description: "BVA: Wartość wieku powyżej dopuszczalnego maksimum (max=65, podano 66)."
+url: "{{base_url}}/api/employees"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+        "name": "Senior Emeryt",
+        "salary": 8000,
+        "age": 66,
+        "position": "Senior QA",
+        "on_leave": false
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 422 Unprocessable Entity", function () {
+          pm.response.to.have.status(422);
+      });
+
+      pm.test("Validation error specifies age constraint failure (le 65)", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          var ageErr = jsonData.detail.find(function(item) { return item.loc.includes("age"); });
+          pm.expect(ageErr, "Błąd walidacji pola age powinien wystąpić").to.not.be.undefined;
+          pm.expect(ageErr.msg).to.include("65");
+      });
+    language: text/javascript
+order: 2000

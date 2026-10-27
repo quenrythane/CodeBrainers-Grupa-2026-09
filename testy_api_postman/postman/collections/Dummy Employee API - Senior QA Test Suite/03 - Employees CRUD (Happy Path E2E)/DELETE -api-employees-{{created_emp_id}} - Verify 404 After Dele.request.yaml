@@ -1,0 +1,19 @@
+$kind: http-request
+name: DELETE /api/employees/{{created_emp_id}} - Verify 404 After Deletion
+description: Próba ponownego usunięcia tego samego ID - weryfikacja kodu 404.
+url: "{{base_url}}/api/employees/{{created_emp_id}}"
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 404 Not Found", function () {
+          pm.response.to.have.status(404);
+      });
+
+      pm.test("Error detail indicates employee not found", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          pm.expect(jsonData.detail).to.eql("Employee not found");
+      });
+    language: text/javascript
+order: 6000

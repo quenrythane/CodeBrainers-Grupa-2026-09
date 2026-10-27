@@ -1,0 +1,32 @@
+$kind: http-request
+name: POST /api/employees - Name Regex Violation (special chars -> 422)
+description: Weryfikacja regexu dopuszczalnych znaków w imieniu i nazwisku.
+url: "{{base_url}}/api/employees"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+        "name": "Jan @@@ Kowalski #1!",
+        "salary": 10000,
+        "age": 30,
+        "position": "Mid QA",
+        "on_leave": false
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 422 Unprocessable Entity", function () {
+          pm.response.to.have.status(422);
+      });
+
+      pm.test("Validation error detects regex pattern failure", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          var nameErr = jsonData.detail.find(function(item) { return item.loc.includes("name"); });
+          pm.expect(nameErr, "Błąd walidacji wzorca regex name powinien wystąpić").to.not.be.undefined;
+      });
+    language: text/javascript
+order: 6000

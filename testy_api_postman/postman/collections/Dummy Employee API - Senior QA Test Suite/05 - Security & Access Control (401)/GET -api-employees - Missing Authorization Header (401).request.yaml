@@ -1,0 +1,21 @@
+$kind: http-request
+name: GET /api/employees - Missing Authorization Header (401)
+description: Próba dostępu do chronionego zasobu bez nagłówka Authorization.
+url: "{{base_url}}/api/employees"
+method: GET
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 401 Unauthorized", function () {
+          pm.response.to.have.status(401);
+      });
+
+      pm.test("Detail message is 'Not authenticated'", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          pm.expect(jsonData.detail).to.eql("Not authenticated");
+      });
+    language: text/javascript
+order: 1000

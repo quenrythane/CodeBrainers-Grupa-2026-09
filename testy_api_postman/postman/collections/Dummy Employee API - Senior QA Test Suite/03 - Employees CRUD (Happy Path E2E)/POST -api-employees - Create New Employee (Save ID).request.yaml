@@ -1,0 +1,55 @@
+$kind: http-request
+name: POST /api/employees - Create New Employee (Save ID)
+description: Utworzenie nowego rekordu pracownika i utrwalenie jego ID w zmiennych kolekcji.
+url: "{{base_url}}/api/employees"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+        "name": "{{temp_emp_name}}",
+        "salary": 16500,
+        "age": 28,
+        "position": "Senior QA",
+        "on_leave": false
+    }
+scripts:
+  - type: beforeRequest
+    code: |-
+      // Generowanie unikalnych danych testowych
+      var randomSuffix = Math.floor(Math.random() * 9000 + 1000);
+      var generatedName = "Jan Tester " + randomSuffix;
+      pm.collectionVariables.set("temp_emp_name", generatedName);
+      console.log("[PRE-REQ] Przygotowano pracownika:", generatedName);
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response time is acceptable (< 600ms)", function () {
+          pm.expect(pm.response.responseTime).to.be.below(600);
+      });
+
+      pm.test("Employee schema and business properties validation", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.be.an("object");
+          pm.expect(jsonData).to.have.property("id");
+          pm.expect(jsonData.id).to.be.a("number").and.above(0);
+          
+          var expectedName = pm.collectionVariables.get("temp_emp_name");
+          pm.expect(jsonData.name).to.eql(expectedName);
+          pm.expect(jsonData.salary).to.eql(16500);
+          pm.expect(jsonData.age).to.eql(28);
+          pm.expect(jsonData.position).to.eql("Senior QA");
+          pm.expect(jsonData.on_leave).to.eql(false);
+          
+          // Zapisanie ID do zmiennej kolekcji
+          pm.collectionVariables.set("created_emp_id", jsonData.id);
+          console.log("[CRUD] Utworzono pracownika ID:", jsonData.id);
+      });
+    language: text/javascript
+order: 2000

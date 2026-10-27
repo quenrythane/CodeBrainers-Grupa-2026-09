@@ -1,0 +1,31 @@
+$kind: http-request
+name: PUT /api/employees/999999 - Update Non-existent Employee (404)
+description: Próba aktualizacji nieistniejącego rekordu (ID 999999) zwraca 404.
+url: "{{base_url}}/api/employees/999999"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+        "name": "Nieistniejący Tester",
+        "salary": 12000,
+        "age": 32,
+        "position": "Mid QA",
+        "on_leave": false
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 404 Not Found", function () {
+          pm.response.to.have.status(404);
+      });
+
+      pm.test("Detail message informs employee not found", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          pm.expect(jsonData.detail).to.eql("Employee not found");
+      });
+    language: text/javascript
+order: 7000

@@ -1,0 +1,23 @@
+$kind: http-request
+name: POST /api/logout - Invalidate Session & Logout
+description: Wylogowanie tokena i wyczyszczenie sesji.
+url: "{{base_url}}/api/logout"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Logout confirms with status 'logged_out'", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("status");
+          pm.expect(jsonData.status).to.eql("logged_out");
+      });
+
+      // Wyczyszczenie zmiennej lokalnej
+      pm.collectionVariables.set("access_token", "");
+      console.log("[TEARDOWN] Sesja wylogowana, token usunięty z collectionVariables.");
+    language: text/javascript
+order: 2000

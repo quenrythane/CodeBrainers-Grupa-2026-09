@@ -1,0 +1,27 @@
+$kind: http-request
+name: GET /api/employees - Fetch Current Employee List
+description: Pobranie aktualnej listy pracowników przed operacjami zapisu.
+url: "{{base_url}}/api/employees"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is an array of employees", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.be.an("array");
+          if (jsonData.length > 0) {
+              var emp = jsonData[0];
+              pm.expect(emp).to.have.property("id");
+              pm.expect(emp).to.have.property("name");
+              pm.expect(emp).to.have.property("salary");
+              pm.expect(emp).to.have.property("age");
+              pm.expect(emp).to.have.property("position");
+              pm.expect(emp).to.have.property("on_leave");
+          }
+      });
+    language: text/javascript
+order: 1000

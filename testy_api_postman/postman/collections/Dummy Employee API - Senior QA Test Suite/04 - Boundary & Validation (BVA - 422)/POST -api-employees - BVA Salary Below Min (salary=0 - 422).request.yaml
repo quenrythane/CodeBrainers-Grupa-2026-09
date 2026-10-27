@@ -1,0 +1,33 @@
+$kind: http-request
+name: POST /api/employees - BVA Salary Below Min (salary=0 -> 422)
+description: "BVA: Pensja poniżej minimum (min=1, podano 0)."
+url: "{{base_url}}/api/employees"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+        "name": "Darmowy Tester",
+        "salary": 0,
+        "age": 25,
+        "position": "Junior QA",
+        "on_leave": false
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 422 Unprocessable Entity", function () {
+          pm.response.to.have.status(422);
+      });
+
+      pm.test("Validation error specifies salary constraint failure (ge 1)", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          var salaryErr = jsonData.detail.find(function(item) { return item.loc.includes("salary"); });
+          pm.expect(salaryErr, "Błąd walidacji pola salary powinien wystąpić").to.not.be.undefined;
+          pm.expect(salaryErr.msg).to.include("1");
+      });
+    language: text/javascript
+order: 3000

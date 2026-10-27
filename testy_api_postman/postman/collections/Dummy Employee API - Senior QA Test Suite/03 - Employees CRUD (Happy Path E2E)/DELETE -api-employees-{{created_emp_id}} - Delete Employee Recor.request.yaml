@@ -1,0 +1,19 @@
+$kind: http-request
+name: DELETE /api/employees/{{created_emp_id}} - Delete Employee Record
+description: Usunięcie utworzonego w ramach testu pracownika.
+url: "{{base_url}}/api/employees/{{created_emp_id}}"
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Deletion response status is 'deleted'", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("status");
+          pm.expect(jsonData.status).to.eql("deleted");
+      });
+    language: text/javascript
+order: 5000

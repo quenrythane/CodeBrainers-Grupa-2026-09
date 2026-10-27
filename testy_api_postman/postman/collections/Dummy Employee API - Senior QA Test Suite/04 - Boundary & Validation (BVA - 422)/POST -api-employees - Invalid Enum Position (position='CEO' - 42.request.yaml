@@ -1,0 +1,33 @@
+$kind: http-request
+name: POST /api/employees - Invalid Enum Position (position='CEO' -> 422)
+description: "Weryfikacja PositionEnum (dopuszczalne: Junior QA, Mid QA, Senior QA, QA Lead)."
+url: "{{base_url}}/api/employees"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+        "name": "Nieprawidłowa Pozycja",
+        "salary": 10000,
+        "age": 30,
+        "position": "CEO",
+        "on_leave": false
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 422 Unprocessable Entity", function () {
+          pm.response.to.have.status(422);
+      });
+
+      pm.test("Validation error details specify invalid enum value", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          var posErr = jsonData.detail.find(function(item) { return item.loc.includes("position"); });
+          pm.expect(posErr, "Błąd walidacji enuma position powinien wystąpić").to.not.be.undefined;
+          pm.expect(posErr.type).to.include("enum");
+      });
+    language: text/javascript
+order: 5000

@@ -1,0 +1,19 @@
+$kind: http-request
+name: POST /api/employees/reset - Reset Employee Database
+description: Przywrócenie bazy danych pracowników do stanu początkowego po zakończeniu testów.
+url: "{{base_url}}/api/employees/reset"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Database reset confirms with status 'reset'", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("status");
+          pm.expect(jsonData.status).to.eql("reset");
+      });
+    language: text/javascript
+order: 1000

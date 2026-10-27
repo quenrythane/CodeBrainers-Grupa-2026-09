@@ -1,0 +1,25 @@
+$kind: http-request
+name: GET /api/employees - Verify Updated Employee in List
+description: Pobranie pełnej listy i weryfikacja czy zaktualizowany rekord jest obecny w bazie.
+url: "{{base_url}}/api/employees"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Employee list includes updated record with matching attributes", function () {
+          var jsonData = pm.response.json();
+          var targetId = Number(pm.collectionVariables.get("created_emp_id"));
+          
+          var found = jsonData.find(function(item) { return item.id === targetId; });
+          pm.expect(found, "Pracownik o ID " + targetId + " powinien znajdować się na liście").to.not.be.undefined;
+          pm.expect(found.salary).to.eql(19500);
+          pm.expect(found.age).to.eql(29);
+          pm.expect(found.position).to.eql("QA Lead");
+          pm.expect(found.on_leave).to.eql(true);
+      });
+    language: text/javascript
+order: 4000

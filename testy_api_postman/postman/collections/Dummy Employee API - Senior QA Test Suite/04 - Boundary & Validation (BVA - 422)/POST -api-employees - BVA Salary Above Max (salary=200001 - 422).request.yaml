@@ -1,0 +1,33 @@
+$kind: http-request
+name: POST /api/employees - BVA Salary Above Max (salary=200001 -> 422)
+description: "BVA: Pensja powyżej maksimum (max=200000, podano 200001)."
+url: "{{base_url}}/api/employees"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+        "name": "Bogaty Tester",
+        "salary": 200001,
+        "age": 35,
+        "position": "QA Lead",
+        "on_leave": false
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 422 Unprocessable Entity", function () {
+          pm.response.to.have.status(422);
+      });
+
+      pm.test("Validation error specifies salary constraint failure (le 200000)", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("detail");
+          var salaryErr = jsonData.detail.find(function(item) { return item.loc.includes("salary"); });
+          pm.expect(salaryErr, "Błąd walidacji pola salary powinien wystąpić").to.not.be.undefined;
+          pm.expect(salaryErr.msg).to.include("200000");
+      });
+    language: text/javascript
+order: 4000
