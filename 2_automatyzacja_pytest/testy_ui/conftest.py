@@ -26,3 +26,13 @@ def zalogowany_driver(driver):
     assert name_input.is_displayed()
 
     return driver
+
+@pytest.fixture
+def employee_data():
+    return {
+        "name"  : "Bartek Tester",
+        "salary":  7000,
+        "age"   : 25,
+        "position": "Junior QA",
+        "on_leave": True
+    }
