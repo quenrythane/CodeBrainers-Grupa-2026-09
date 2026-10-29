@@ -1,35 +1,21 @@
 import pytest
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
-
+from pages.add_employee_page import AddEmployeePage
 
 
 @pytest.mark.ui
 @pytest.mark.ui_create_employee
-def test_dodanie_pracownika_ui():
-    driver = webdriver.Chrome()
-    driver.implicitly_wait(4)
-    driver.get("http://127.0.0.1:8000/login")
+def test_dodanie_pracownika_ui(zalogowany_driver):
+    driver = zalogowany_driver
+    add_employee_page = AddEmployeePage(driver)
 
-    # logowanie
-    username_input = driver.find_element(By.ID, "username")
-    password_input = driver.find_element(By.ID, "password")
-    login_button = driver.find_element(By.XPATH, "/html/body/div/form/button")
+    add_employee_page.fill_employee_name(employee_data["name"])
 
-    username_input.send_keys("admin")
-    password_input.send_keys("admin")
-    login_button.click()
-
-    name_input = driver.find_element(By.ID, "name")
-    assert name_input.is_displayed()
-
-    # dodanie pracownika
-    ## AAA
     ### Arrange
     name_input = driver.find_element(By.ID, "name")
     salary_input = driver.find_element(By.ID, "salary")
