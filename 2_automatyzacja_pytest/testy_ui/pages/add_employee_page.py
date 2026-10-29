@@ -15,6 +15,8 @@ class AddEmployeePage:
         self.add_button = (By.ID, "submitBtn")
 
 
+    def anchor_element(self):
+        return self.driver.find_element(*self.name_input)
 
     def fill_input(self, locator, value):
         input_element = self.driver.find_element(*locator)

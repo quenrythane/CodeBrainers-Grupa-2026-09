@@ -1,6 +1,14 @@
+import logging
 import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+
+@pytest.fixture(autouse=True)
+def logger(request):
+    log = logging.getLogger("tests")
+    log.info("START: %s", request.node.nodeid)
+    yield log
+    log.info("KONIEC: %s", request.node.nodeid)
 
 
 @pytest.fixture

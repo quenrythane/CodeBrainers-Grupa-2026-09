@@ -1,33 +1,19 @@
 import pytest
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
+from pages.login_page import LoginPage
+from pages.add_employee_page import AddEmployeePage
+
 
 @pytest.mark.ui
 @pytest.mark.ui_login
-def test_logowanie_ui():
-    driver = webdriver.Chrome()
-    driver.implicitly_wait(4)
-    driver.get("http://127.0.0.1:8000/login")
+def test_logowanie_ui(driver, logger):
+    login_page = LoginPage(driver, logger)
+    add_employee_page = AddEmployeePage(driver)
 
-    # locator strategy
-    # 1. id
-    # 2. name
-    # 3. class
-    # 4. xpath  # /html/body/div/form/input[1]
-    # 5. css selector
-    # 6. link text
-    # 7. partial link text
-    # 8. tag name
-    username_input = driver.find_element(By.ID, "username")
-    password_input = driver.find_element(By.ID, "password")
-    login_button = driver.find_element(By.XPATH, "/html/body/div/form/button")
+    login_page.open()
+    login_page.fill_username_input("admin")
+    login_page.fill_password_input("admin")
+    login_page.click_sign_in_button()
 
-    username_input.send_keys("admin")
-    password_input.send_keys("admin")
-    login_button.click()
-
-    name_input = driver.find_element(By.ID, "name")
-    assert name_input.is_displayed()
+    assert add_employee_page.anchor_element().is_displayed()
 
 
