@@ -11,21 +11,13 @@ from pages.add_employee_page import AddEmployeePage
 @pytest.mark.ui
 @pytest.mark.ui_create_employee
 def test_dodanie_pracownika_ui(zalogowany_driver):
+    ### Arrange
     driver = zalogowany_driver
     add_employee_page = AddEmployeePage(driver)
 
-    add_employee_page.fill_employee_name(employee_data["name"])
-
-    ### Arrange
-    name_input = driver.find_element(By.ID, "name")
-    salary_input = driver.find_element(By.ID, "salary")
-    age_input = driver.find_element(By.ID, "age")
-    position_select = Select(   driver.find_element(By.ID, "position")  )
-    on_vacation_checkbox = driver.find_element(By.ID, "on_leave")
-    add_button = driver.find_element(By.ID, "submitBtn")
 
     employee_data = {
-        "name"  : "Janek Tester",
+        "name"  : "Bartek Tester",
         "salary":  7000,
         "age"   : 25,
         "position": "Junior QA",
@@ -34,13 +26,18 @@ def test_dodanie_pracownika_ui(zalogowany_driver):
 
 
     ### Act
-    name_input.send_keys(employee_data["name"])
-    salary_input.send_keys(employee_data["salary"])
-    age_input.send_keys(employee_data["age"])
-    position_select.select_by_visible_text("Junior QA")
-    if employee_data["on_leave"]:
-        on_vacation_checkbox.click()
-    add_button.click()
+    # add_employee_page.fill_name_input(employee_data["name"])
+    # add_employee_page.fill_salary_input(employee_data["salary"])
+    # add_employee_page.fill_age_input(employee_data["age"])
+    # add_employee_page.select_position(employee_data["position"])
+    # add_employee_page.check_on_vacation(employee_data["on_leave"])
+    # add_employee_page.click_add_button()
+
+    add_employee_page.fill_name_input("xdxd")
+    input("Press Enter to continue...")  # Dodaj to, aby zatrzymać test i sprawdzić, czy formularz jest wypełniony poprawnie
+    add_employee_page.fill_form(employee_data)
+    input("Press Enter to continue...")  # Dodaj to, aby zatrzymać test i sprawdzić, czy formularz jest wypełniony poprawnie
+
 
 
     ### Assert
