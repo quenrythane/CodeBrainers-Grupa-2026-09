@@ -7,7 +7,7 @@ from time import sleep
 class AddEmployeePage:
     def __init__(self, driver):
         self.driver = driver
-        self.name_input = (By.ID, "full_name")
+        self.name_input = (By.ID, "name")
         self.salary_input = (By.ID, "salary")
         self.age_input = (By.ID, "age")
         self.position_select = (By.ID, "position")
@@ -23,16 +23,16 @@ class AddEmployeePage:
 
 
     def fill_name_input(self, name):
-        self.fill_input(self, self.name_input, name)
+        self.fill_input(self.name_input, name)
 
 
     def fill_salary_input(self, salary):
-        self.fill_input(self, self.salary_input, salary)
+        self.fill_input(self.salary_input, salary)
 
 
 
     def fill_age_input(self, age):
-        self.fill_input(self, self.age_input, age)
+        self.fill_input(self.age_input, age)
 
 
 
